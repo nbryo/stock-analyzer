@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockLens â æ ªå¼ãã¡ã³ãã¡ã³ã¿ã«åæ</title>
+<title>StockLens — 株式ファンダメンタル分析</title>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -153,54 +153,54 @@
 <body>
 
 <header>
-  <div class="logo">ð StockLens</div>
-  <span class="api-badge" id="api-status-badge" onclick="openApiModal()">ð APIè¨­å®</span>
+  <div class="logo">📈 StockLens</div>
+  <span class="api-badge" id="api-status-badge" onclick="openApiModal()">🔑 API設定</span>
 </header>
 
 <main>
   <!-- API SETUP BANNER -->
   <div id="setup-banner">
     <div>
-      <h3>ð FMP APIã­ã¼ãè¨­å®ãã¦ãªã¢ã«ãã¼ã¿ãåå¾</h3>
-      <p>Financial Modeling Prep ã®ç¡æAPIã­ã¼ãå¥åãã¦ãã ãã</p>
+      <h3>🚀 FMP APIキーを設定してリアルデータを取得</h3>
+      <p>Financial Modeling Prep の無料APIキーを入力してください</p>
     </div>
     <div class="setup-input-row">
-      <input type="password" id="api-key-inline" placeholder="APIã­ã¼ãããã«ãã¼ã¹ã...">
-      <button class="btn btn-primary" onclick="saveApiKey()">æ¥ç¶</button>
+      <input type="password" id="api-key-inline" placeholder="APIキーをここにペースト...">
+      <button class="btn btn-primary" onclick="saveApiKey()">接続</button>
     </div>
   </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('screener')">ð ã¹ã¯ãªã¼ãã¼</div>
-    <div class="tab" onclick="switchTab('watchlist')">â­ ã¦ã©ãããªã¹ã</div>
+    <div class="tab active" onclick="switchTab('screener')">📊 スクリーナー</div>
+    <div class="tab" onclick="switchTab('watchlist')">⭐ ウォッチリスト</div>
   </div>
 
   <!-- SCREENER TAB -->
   <div id="tab-screener" class="tab-content active">
     <div class="controls">
-      <input class="search-box" type="text" id="search-input" placeholder="ð ãã£ãã«ã¼ã»ä¼æ¥­åã§æ¤ç´¢" oninput="filterAndRender()">
+      <input class="search-box" type="text" id="search-input" placeholder="🔍 ティッカー・企業名で検索" oninput="filterAndRender()">
       <select id="market-select" onchange="loadScreener()">
         <option value="nasdaq100">NASDAQ 100</option>
         <option value="sp500">S&P 500</option>
-        <option value="dow">ãã¦30</option>
+        <option value="dow">ダウ30</option>
       </select>
       <select id="sort-metric" onchange="filterAndRender()">
-        <option value="score">ç·åã¹ã³ã¢é </option>
-        <option value="per">PERï¼ä½ãé ï¼</option>
-        <option value="fcfYield">FCFå©åãï¼é«ãé ï¼</option>
-        <option value="pegRatio">PEGï¼ä½ãé ï¼</option>
-        <option value="roic">ROICï¼é«ãé ï¼</option>
-        <option value="epsGrowth">EPSæé·çï¼é«ãé ï¼</option>
+        <option value="score">総合スコア順</option>
+        <option value="per">PER（低い順）</option>
+        <option value="fcfYield">FCF利回り（高い順）</option>
+        <option value="pegRatio">PEG（低い順）</option>
+        <option value="roic">ROIC（高い順）</option>
+        <option value="epsGrowth">EPS成長率（高い順）</option>
       </select>
-      <button class="btn btn-primary btn-sm" onclick="loadScreener()">ð æ´æ°</button>
+      <button class="btn btn-primary btn-sm" onclick="loadScreener()">🔄 更新</button>
     </div>
 
     <div id="screener-container">
       <div class="empty-state">
-        <div class="icon">ð</div>
-        <p>APIã­ã¼ãè¨­å®ããã¨ãªã¢ã«ã¿ã¤ã ãã¼ã¿ãè¡¨ç¤ºããã¾ã</p>
-        <p style="font-size:12px;color:var(--text3);margin-top:8px">ãã¢ã¢ã¼ãã§ã¯<strong>ãµã³ãã«ãã¼ã¿</strong>ãè¡¨ç¤ºä¸­</p>
+        <div class="icon">🔑</div>
+        <p>APIキーを設定するとリアルタイムデータが表示されます</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px">デモモードでは<strong>サンプルデータ</strong>を表示中</p>
       </div>
     </div>
   </div>
@@ -209,8 +209,8 @@
   <div id="tab-watchlist" class="tab-content">
     <div id="watchlist-container">
       <div class="empty-state">
-        <div class="icon">â­</div>
-        <p>æ ªå¼è©³ç´°ãã¼ã¸ããâãã¯ãªãã¯ãã¦è¿½å ã§ãã¾ã</p>
+        <div class="icon">⭐</div>
+        <p>株式詳細ページから☆をクリックして追加できます</p>
       </div>
     </div>
   </div>
@@ -219,16 +219,16 @@
 <!-- DETAIL VIEW (full-page overlay) -->
 <div id="detail-view">
   <main>
-    <div class="back-btn" onclick="closeDetail()">â ä¸è¦§ã«æ»ã</div>
+    <div class="back-btn" onclick="closeDetail()">← 一覧に戻る</div>
     <div class="stock-header">
       <div class="stock-logo" id="detail-logo">A</div>
       <div class="stock-title">
-        <h1 id="detail-name">â</h1>
-        <p id="detail-sector">â</p>
+        <h1 id="detail-name">—</h1>
+        <p id="detail-sector">—</p>
       </div>
       <div class="stock-price">
-        <div class="price" id="detail-price">â</div>
-        <div class="change" id="detail-change">â</div>
+        <div class="price" id="detail-price">—</div>
+        <div class="change" id="detail-change">—</div>
       </div>
     </div>
 
@@ -236,16 +236,16 @@
 
     <div class="chart-row">
       <div class="chart-box">
-        <div class="section-title">EPSæ¨ç§»ï¼éå»5å¹´ï¼</div>
+        <div class="section-title">EPS推移（過去5年）</div>
         <canvas id="eps-chart" height="160"></canvas>
       </div>
       <div class="chart-box">
-        <div class="section-title">FCFæ¨ç§»ï¼éå»5å¹´ï¼</div>
+        <div class="section-title">FCF推移（過去5年）</div>
         <canvas id="fcf-chart" height="160"></canvas>
       </div>
     </div>
 
-    <div class="section-title">åæã¹ã³ã¢ã«ã¼ã</div>
+    <div class="section-title">分析スコアカード</div>
     <div class="analysis-grid" id="detail-scorecard"></div>
   </main>
 </div>
@@ -253,13 +253,13 @@
 <!-- API KEY MODAL -->
 <div class="modal-overlay" id="api-modal">
   <div class="modal">
-    <h3>ð FMP APIã­ã¼è¨­å®</h3>
-    <p>Financial Modeling Prep ã®APIã­ã¼ãå¥åãã¦ãã ããã<br>
-    ç¡æãã©ã³ã¯ <a href="https://financialmodelingprep.com" target="_blank" style="color:var(--accent)">financialmodelingprep.com</a> ã§åå¾ã§ãã¾ãã</p>
+    <h3>🔑 FMP APIキー設定</h3>
+    <p>Financial Modeling Prep のAPIキーを入力してください。<br>
+    無料プランは <a href="https://financialmodelingprep.com" target="_blank" style="color:var(--accent)">financialmodelingprep.com</a> で取得できます。</p>
     <input type="password" id="modal-api-key" placeholder="your_api_key_here">
     <div class="modal-buttons">
-      <button class="btn btn-ghost" onclick="closeApiModal()">ã­ã£ã³ã»ã«</button>
-      <button class="btn btn-primary" onclick="saveApiKeyFromModal()">ä¿å­ãã¦æ¥ç¶</button>
+      <button class="btn btn-ghost" onclick="closeApiModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveApiKeyFromModal()">保存して接続</button>
     </div>
   </div>
 </div>
@@ -312,7 +312,7 @@ function saveApiKeyFromModal() {
 }
 function updateApiStatus(connected) {
   const badge = document.getElementById('api-status-badge');
-  badge.textContent = connected ? 'â APIæ¥ç¶æ¸ã¿' : 'ð APIè¨­å®';
+  badge.textContent = connected ? '✅ API接続済み' : '🔑 API設定';
   badge.className = 'api-badge' + (connected ? ' connected' : '');
 }
 function hideBanner() {
@@ -381,7 +381,7 @@ function buildStockFromProfile(p) {
   return {
     ticker: p.symbol,
     name: p.companyName,
-    sector: p.sector || 'â',
+    sector: p.sector || '—',
     price,
     change: p.changes || 0,
     changePct: p.changesPercentage || 0,
@@ -458,13 +458,13 @@ function renderTable(stocks) {
         <thead>
           <tr>
             <th>#</th>
-            <th>ãã£ãã«ã¼ / ä¼æ¥­å</th>
-            <th>æ ªä¾¡</th>
-            <th>æä¾¡ç·é¡</th>
-            <th>ã¹ã³ã¢</th>
+            <th>ティッカー / 企業名</th>
+            <th>株価</th>
+            <th>時価総額</th>
+            <th>スコア</th>
             <th>PER</th>
-            <th>EPSæé·</th>
-            <th>FCFå©åã</th>
+            <th>EPS成長</th>
+            <th>FCF利回り</th>
             <th>PEG</th>
             <th>ROIC</th>
           </tr>
@@ -483,11 +483,11 @@ function renderTable(stocks) {
               </td>
               <td>${fmtCap(s.mktCap)}</td>
               <td><span class="score-badge ${scoreClass(s.score)}">${s.score}</span></td>
-              <td class="${perColor(s.per)}">${s.per != null ? s.per.toFixed(1) : 'â'}</td>
-              <td class="${s.epsGrowth > 0 ? 'pos' : 'neg'}">${s.epsGrowth != null ? s.epsGrowth.toFixed(1) + '%' : 'â'}</td>
-              <td class="${s.fcfYield > 4 ? 'pos' : s.fcfYield > 2 ? 'neu' : 'neg'}">${s.fcfYield != null ? s.fcfYield.toFixed(1) + '%' : 'â'}</td>
-              <td class="${s.pegRatio != null && s.pegRatio < 1 ? 'pos' : s.pegRatio < 2 ? 'neu' : 'neg'}">${s.pegRatio != null ? s.pegRatio.toFixed(2) : 'â'}</td>
-              <td class="${s.roic > 20 ? 'pos' : s.roic > 10 ? 'neu' : 'neg'}">${s.roic != null ? s.roic.toFixed(1) + '%' : 'â'}</td>
+              <td class="${perColor(s.per)}">${s.per != null ? s.per.toFixed(1) : '—'}</td>
+              <td class="${s.epsGrowth > 0 ? 'pos' : 'neg'}">${s.epsGrowth != null ? s.epsGrowth.toFixed(1) + '%' : '—'}</td>
+              <td class="${s.fcfYield > 4 ? 'pos' : s.fcfYield > 2 ? 'neu' : 'neg'}">${s.fcfYield != null ? s.fcfYield.toFixed(1) + '%' : '—'}</td>
+              <td class="${s.pegRatio != null && s.pegRatio < 1 ? 'pos' : s.pegRatio < 2 ? 'neu' : 'neg'}">${s.pegRatio != null ? s.pegRatio.toFixed(2) : '—'}</td>
+              <td class="${s.roic > 20 ? 'pos' : s.roic > 10 ? 'neu' : 'neg'}">${s.roic != null ? s.roic.toFixed(1) + '%' : '—'}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -530,23 +530,23 @@ async function openDetail(ticker) {
   // Header
   document.getElementById('detail-logo').textContent = ticker[0];
   document.getElementById('detail-name').textContent = stock.name;
-  document.getElementById('detail-sector').textContent = `${stock.sector} Â· ${ticker}`;
+  document.getElementById('detail-sector').textContent = `${stock.sector} · ${ticker}`;
   document.getElementById('detail-price').textContent = `$${fmt(stock.price)}`;
   const chEl = document.getElementById('detail-change');
-  chEl.textContent = `${stock.changePct >= 0 ? '+' : ''}${fmt(stock.changePct)}% æ¬æ¥`;
+  chEl.textContent = `${stock.changePct >= 0 ? '+' : ''}${fmt(stock.changePct)}% 本日`;
   chEl.className = 'change ' + (stock.changePct >= 0 ? 'pos' : 'neg');
 
   // Metrics
   const metrics = [
-    { label: 'ã¹ã³ã¢', value: `${stock.score}/100`, sub: scoreLabel(stock.score), highlight: true },
-    { label: 'PER', value: stock.per != null ? stock.per.toFixed(1) : 'â', sub: perLabel(stock.per) },
-    { label: 'EPS', value: stock.eps != null ? `$${fmt(stock.eps)}` : 'â', sub: '1æ ªå©çï¼TTMï¼' },
-    { label: 'EPSæé·ç', value: stock.epsGrowth != null ? `${stock.epsGrowth.toFixed(1)}%` : 'â', sub: 'éå»5å¹´CAGR' },
-    { label: 'FCFå©åã', value: stock.fcfYield != null ? `${stock.fcfYield.toFixed(1)}%` : 'â', sub: 'FCFÃ·æä¾¡ç·é¡' },
-    { label: 'PEG Ratio', value: stock.pegRatio != null ? stock.pegRatio.toFixed(2) : 'â', sub: 'PERÃ·EPSæé·ç' },
-    { label: 'ROIC', value: stock.roic != null ? `${stock.roic.toFixed(1)}%` : 'â', sub: 'æä¸è³æ¬å©çç' },
-    { label: 'éå½å©åã', value: stock.divYield != null ? `${stock.divYield.toFixed(2)}%` : 'â', sub: 'å¹´ééå½Ã·æ ªä¾¡' },
-    { label: 'æä¾¡ç·é¡', value: fmtCap(stock.mktCap), sub: '' },
+    { label: 'スコア', value: `${stock.score}/100`, sub: scoreLabel(stock.score), highlight: true },
+    { label: 'PER', value: stock.per != null ? stock.per.toFixed(1) : '—', sub: perLabel(stock.per) },
+    { label: 'EPS', value: stock.eps != null ? `$${fmt(stock.eps)}` : '—', sub: '1株利益（TTM）' },
+    { label: 'EPS成長率', value: stock.epsGrowth != null ? `${stock.epsGrowth.toFixed(1)}%` : '—', sub: '過去5年CAGR' },
+    { label: 'FCF利回り', value: stock.fcfYield != null ? `${stock.fcfYield.toFixed(1)}%` : '—', sub: 'FCF÷時価総額' },
+    { label: 'PEG Ratio', value: stock.pegRatio != null ? stock.pegRatio.toFixed(2) : '—', sub: 'PER÷EPS成長率' },
+    { label: 'ROIC', value: stock.roic != null ? `${stock.roic.toFixed(1)}%` : '—', sub: '投下資本利益率' },
+    { label: '配当利回り', value: stock.divYield != null ? `${stock.divYield.toFixed(2)}%` : '—', sub: '年間配当÷株価' },
+    { label: '時価総額', value: fmtCap(stock.mktCap), sub: '' },
   ];
 
   document.getElementById('detail-metrics').innerHTML = metrics.map(m => `
@@ -624,24 +624,24 @@ function closeDetail() {
 function renderScorecard(s) {
   const sections = [
     {
-      title: 'ð ããªã¥ã¨ã¼ã·ã§ã³',
+      title: '📊 バリュエーション',
       items: [
         { label: 'PER', val: s.per, max: 50, inv: true, good: 15, ok: 25 },
         { label: 'PEG Ratio', val: s.pegRatio, max: 5, inv: true, good: 1, ok: 2 },
-        { label: 'FCFå©åã', val: s.fcfYield, max: 10, inv: false, good: 5, ok: 3 },
+        { label: 'FCF利回り', val: s.fcfYield, max: 10, inv: false, good: 5, ok: 3 },
       ]
     },
     {
-      title: 'ð æé·æ§',
+      title: '📈 成長性',
       items: [
-        { label: 'EPSæé·ç', val: s.epsGrowth, max: 60, inv: false, good: 15, ok: 8 },
+        { label: 'EPS成長率', val: s.epsGrowth, max: 60, inv: false, good: 15, ok: 8 },
         { label: 'ROIC', val: s.roic, max: 60, inv: false, good: 20, ok: 10 },
       ]
     },
     {
-      title: 'ð° æ ªä¸»éå',
+      title: '💰 株主還元',
       items: [
-        { label: 'éå½å©åã', val: s.divYield, max: 6, inv: false, good: 2, ok: 1 },
+        { label: '配当利回り', val: s.divYield, max: 6, inv: false, good: 2, ok: 1 },
       ]
     },
   ];
@@ -650,7 +650,7 @@ function renderScorecard(s) {
     <div class="analysis-card">
       <h4>${sec.title}</h4>
       ${sec.items.map(item => {
-        if (item.val == null) return `<div class="progress-row"><span>${item.label}</span><span class="neu">â</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--text3)"></div></div>`;
+        if (item.val == null) return `<div class="progress-row"><span>${item.label}</span><span class="neu">—</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--text3)"></div></div>`;
         const pct = Math.min(100, Math.abs(item.val) / item.max * 100);
         const isGood = item.inv ? item.val <= item.good : item.val >= item.good;
         const isOk = item.inv ? item.val <= item.ok : item.val >= item.ok;
@@ -658,7 +658,7 @@ function renderScorecard(s) {
         return `
           <div class="progress-row">
             <span>${item.label}</span>
-            <span style="color:${color};font-weight:600">${typeof item.val === 'number' ? item.val.toFixed(item.val < 10 ? 2 : 1) + (item.label.includes('ç') || item.label.includes('å©åã') || item.label === 'ROIC' ? '%' : '') : item.val}</span>
+            <span style="color:${color};font-weight:600">${typeof item.val === 'number' ? item.val.toFixed(item.val < 10 ? 2 : 1) + (item.label.includes('率') || item.label.includes('利回り') || item.label === 'ROIC' ? '%' : '') : item.val}</span>
           </div>
           <div class="progress-bar">
             <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
@@ -745,7 +745,7 @@ function generateTrend(currentVal, growthRate, years) {
 }
 
 function generateFcfTrend(fcfYield, mktCap, years) {
-  if (!fcfYield || !mktCap) return Array(years).fill(0).map((_, i) => +(i * 0.2).toFixed(2));
+  if (!fcfYield || !mktCap) return Array(years).fill(0).map((_, i) => +(h * 0.2).toFixed(2));
   const fcf = (fcfYield / 100) * mktCap;
   return Array(years).fill(0).map((_, i) => +((fcf / 1e9) * (0.7 + i * 0.08)).toFixed(2));
 }
@@ -786,21 +786,21 @@ function calcScore(s) {
 // ============================================================
 // UTILS
 // ============================================================
-function fmt(n) { return n != null ? n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'â'; }
+function fmt(n) { return n != null ? n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'; }
 function fmtCap(n) {
-  if (!n) return 'â';
+  if (!n) return '—';
   if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
   if (n >= 1e9) return `$${(n / 1e9).toFixed(0)}B`;
   return `$${(n / 1e6).toFixed(0)}M`;
 }
-function truncate(s, n) { return s.length > n ? s.slice(0, n) + 'â¦' : s; }
+function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
 function scoreClass(s) { return s >= 85 ? 'score-a' : s >= 70 ? 'score-b' : s >= 55 ? 'score-c' : 'score-d'; }
-function scoreLabel(s) { return s >= 85 ? 'éå¸¸ã«å²å®' : s >= 70 ? 'å²å®' : s >= 55 ? 'ä¸­ç«' : 'å²é«'; }
-function perLabel(p) { if (!p) return 'â'; return p < 15 ? 'å²å®' : p < 25 ? 'éªf­£' : p < 40 ? 'ããé«ã' : 'é«ã'; }
+function scoreLabel(s) { return s >= 85 ? '非常に割安' : s >= 70 ? '割安' : s >= 55 ? '中立' : '割高'; }
+function perLabel(p) { if (!p) return '—'; return p < 15 ? '割安' : p < 25 ? '適正' : p < 40 ? 'やや高い' : '高い'; }
 function perColor(p) { if (!p) return 'neu'; return p < 15 ? 'pos' : p < 25 ? 'neu' : 'neg'; }
 
 function showLoading(id) {
-  document.getElementById(id).innerHTML = '<div class="loading"><div class="spinner"></div><p>ãã¼ã¿ãåå¾ä¸­...</p></div>';
+  document.getElementById(id).innerHTML = '<div class="loading"><div class="spinner"></div><p>データを取得中...</p></div>';
 }
 
 function switchTab(tab) {
@@ -813,7 +813,7 @@ function switchTab(tab) {
 function renderWatchlist() {
   const stocks = allStocks.filter(s => watchlist.includes(s.ticker));
   if (!stocks.length) {
-    document.getElementById('watchlist-container').innerHTML = '<div class="empty-state"><div class="icon">â­</div><p>ã¾ã ã¦ã©ãããªã¹ãã«éæãããã¾ãã</p></div>';
+    document.getElementById('watchlist-container').innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>まだウォッチリストに銘柄がありません</p></div>';
     return;
   }
   const saved = [...allStocks];
