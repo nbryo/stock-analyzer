@@ -15,31 +15,34 @@ import app.models.stock  # noqa: F401
 logger = logging.getLogger(__name__)
 
 
-async def _seed_initial_data():
-    """Run initial data fetch if DB is empty (non-blocking background task)."""
+async def _seed_if_empty():
+    """Run initial data fetch if DB is empty (background task, non-blocking)."""
     from app.models.stock import Stock
     db = SessionLocal()
     try:
         count = db.query(Stock).count()
         if count == 0:
-            logger.info("DB empty — running initial data seed in background...")
-            from scripts.fetch_initial_data import main as fetch_main
-            await asyncio.to_thread(fetch_main)
-            logger.info("Initial data seed complete.")
+            logger.info("DB empty — seeding initial stock data in background...")
+            try:
+                from scripts.fetch_initial_data import fetch_and_save
+                await fetch_and_save()
+                logger.info("Initial stock data seeded successfully.")
+            except Exception as e:
+                logger.error(f"Seed error: {e}")
         else:
-            logger.info(f"DB already has {count} stocks, skipping seed.")
+            logger.info(f"DB has {count} stocks, skipping seed.")
     except Exception as e:
-        logger.warning(f"Seed task error (non-fatal): {e}")
+        logger.warning(f"Seed check error (non-fatal): {e}")
     finally:
         db.close()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create all tables on startup
+    # Create all DB tables on startup
     Base.metadata.create_all(bind=engine)
-    # Seed initial data in background (doesn't block startup)
-    asyncio.create_task(_seed_initial_data())
+    # Kick off background seed (won't block request handling)
+    asyncio.create_task(_seed_if_empty())
     yield
 
 
