@@ -5,824 +5,488 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StockLens — 株式ファンダメンタル分析</title>
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --bg2: #111827;
-    --bg3: #1a2235;
-    --border: #1e2d45;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --green: #10b981;
-    --red: #ef4444;
-    --yellow: #f59e0b;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --text3: #64748b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; }
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
 
-  /* HEADER */
-  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .api-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--bg3); border: 1px solid var(--border); color: var(--text2); cursor: pointer; }
-  .api-badge.connected { border-color: var(--green); color: var(--green); }
+/* Header */
+.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.logo span { color: var(--text2); font-weight: 400; font-size: 14px; margin-left: 8px; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.market-badge { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--text2); }
+.market-badge.active { border-color: var(--accent); color: var(--accent); }
 
-  /* MAIN LAYOUT */
-  main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+/* Main layout */
+.main { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
-  /* API KEY SETUP */
-  #setup-banner { background: linear-gradient(135deg, #1e3a5f, #1a2235); border: 1px solid #2563eb44; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  #setup-banner h3 { font-size: 15px; color: var(--accent2); margin-bottom: 4px; }
-  #setup-banner p { font-size: 13px; color: var(--text2); }
-  .setup-input-row { display: flex; gap: 8px; flex: 1; min-width: 280px; }
-  .setup-input-row input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 13px; }
-  .setup-input-row input:focus { outline: none; border-color: var(--accent); }
-  .btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #2563eb; }
-  .btn-sm { padding: 6px 12px; font-size: 12px; }
+/* Stats bar */
+.stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+.stat-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
 
-  /* TABS */
-  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .tab { padding: 10px 16px; font-size: 14px; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; transition: .15s; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+/* Controls */
+.controls { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.search-box { flex: 1; min-width: 200px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-size: 14px; outline: none; }
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--text2); }
+select { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-size: 14px; outline: none; cursor: pointer; }
+select:focus { border-color: var(--accent); }
+.btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; cursor: pointer; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-ghost { background: transparent; color: var(--text2); }
+.btn-ghost:hover { color: var(--text); background: var(--bg3); }
+.btn-ghost.active { color: var(--accent); border-color: var(--accent); }
 
-  /* SCREENER CONTROLS */
-  .controls { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-  .controls select, .controls input { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 13px; }
-  .controls select:focus, .controls input:focus { outline: none; border-color: var(--accent); }
-  .search-box { flex: 1; min-width: 200px; max-width: 320px; }
+/* Table */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.table-header-bar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.table-title { font-size: 14px; font-weight: 600; }
+.table-count { font-size: 13px; color: var(--text2); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: var(--bg3); padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); white-space: nowrap; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+thead th:hover { color: var(--text); }
+thead th.sorted { color: var(--accent); }
+thead th.sorted::after { content: ' ↓'; }
+thead th.sorted.asc::after { content: ' ↑'; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 10px 12px; white-space: nowrap; }
 
-  /* RANKING TABLE */
-  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { background: var(--bg3); }
-  th { padding: 12px 14px; text-align: right; color: var(--text2); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; cursor: pointer; }
-  th:first-child, th:nth-child(2) { text-align: left; }
-  th:hover { color: var(--text); }
-  th .sort-icon { margin-left: 4px; opacity: .4; }
-  th.sorted .sort-icon { opacity: 1; color: var(--accent); }
-  tbody tr { border-top: 1px solid var(--border); transition: background .1s; cursor: pointer; }
-  tbody tr:hover { background: var(--bg3); }
-  td { padding: 11px 14px; text-align: right; white-space: nowrap; }
-  td:first-child { text-align: left; }
-  td:nth-child(2) { text-align: left; color: var(--text2); font-size: 12px; }
-  .ticker { font-weight: 700; color: var(--accent2); }
-  .score-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
-  .score-a { background: #10b98122; color: #10b981; }
-  .score-b { background: #3b82f622; color: #3b82f6; }
-  .score-c { background: #f59e0b22; color: #f59e0b; }
-  .score-d { background: #ef444422; color: #ef4444; }
-  .pos { color: var(--green); }
-  .neg { color: var(--red); }
-  .neu { color: var(--text2); }
+.ticker-cell { font-weight: 700; color: var(--accent); font-size: 14px; }
+.name-cell { color: var(--text2); max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+.rank-cell { font-weight: 700; color: var(--text2); font-size: 13px; width: 36px; }
+.price-cell { font-weight: 600; }
 
-  /* PAGINATION */
-  .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
-  .page-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 13px; cursor: pointer; }
-  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .page-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+/* Score bar */
+.score-wrap { display: flex; align-items: center; gap: 8px; }
+.score-bar { width: 60px; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.score-num { font-weight: 700; font-size: 13px; width: 26px; text-align: right; }
 
-  /* STOCK DETAIL */
-  #detail-view { display: none; }
-  .back-btn { display: flex; align-items: center; gap: 6px; color: var(--text2); font-size: 14px; cursor: pointer; margin-bottom: 20px; }
-  .back-btn:hover { color: var(--text); }
-  .stock-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
-  .stock-logo { width: 56px; height: 56px; border-radius: 12px; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--accent2); }
-  .stock-title h1 { font-size: 24px; font-weight: 700; }
-  .stock-title p { color: var(--text2); font-size: 14px; margin-top: 2px; }
-  .stock-price { margin-left: auto; text-align: right; }
-  .stock-price .price { font-size: 28px; font-weight: 700; }
-  .stock-price .change { font-size: 14px; margin-top: 2px; }
+/* Metric cells */
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.na { color: var(--text2); }
+.sector-badge { background: var(--bg3); border-radius: 4px; padding: 2px 7px; font-size: 11px; color: var(--text2); }
 
-  /* METRIC CARDS */
-  .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
-  .metric-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-  .metric-card .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
-  .metric-card .value { font-size: 20px; font-weight: 700; }
-  .metric-card .sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .metric-card.highlight { border-color: var(--accent2); background: linear-gradient(135deg, #0a1929, #1a2235); }
+/* Market tag */
+.market-tag { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 3px; }
+.market-us { background: rgba(88,166,255,0.15); color: var(--accent); }
+.market-jp { background: rgba(188,140,255,0.15); color: var(--purple); }
 
-  /* CHARTS */
-  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--text2); }
-  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  @media(max-width: 640px) { .chart-row { grid-template-columns: 1fr; } }
-  .chart-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-  canvas { width: 100% !important; }
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border); }
+.page-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; color: var(--text2); cursor: pointer; font-size: 13px; }
+.page-btn:hover { color: var(--text); border-color: var(--text2); }
+.page-btn.active { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-  /* ANALYSIS SCORE */
-  .analysis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .analysis-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-  .analysis-card h4 { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
-  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
-  .progress-bar { height: 4px; background: var(--bg3); border-radius: 4px; margin-bottom: 10px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+/* Loading */
+.loading { text-align: center; padding: 60px; color: var(--text2); }
+.spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* LOADING / ERROR */
-  .loading { text-align: center; padding: 48px; color: var(--text2); }
-  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty-state { text-align: center; padding: 48px; color: var(--text2); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+/* Error */
+.error-msg { background: rgba(248,81,73,0.1); border: 1px solid var(--red); border-radius: 8px; padding: 16px; color: var(--red); margin: 20px; text-align: center; }
 
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 90%; max-width: 440px; }
-  .modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-  .modal p { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.6; }
-  .modal input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; margin-bottom: 12px; }
-  .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; }
-  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
-  .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+/* Detail panel */
+.detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; }
+.detail-overlay.open { display: flex; align-items: center; justify-content: center; }
+.detail-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto; padding: 28px; position: relative; }
+.detail-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; }
+.detail-close:hover { color: var(--text); }
+.detail-ticker { font-size: 32px; font-weight: 800; color: var(--accent); }
+.detail-name { color: var(--text2); font-size: 15px; margin-top: 2px; }
+.detail-price { font-size: 28px; font-weight: 700; margin-top: 16px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.detail-metric { background: var(--bg3); border-radius: 8px; padding: 12px 16px; }
+.detail-metric-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.detail-metric-value { font-size: 20px; font-weight: 700; }
+.detail-sector { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.detail-tag { background: var(--bg3); border-radius: 4px; padding: 3px 10px; font-size: 12px; color: var(--text2); }
 
-  /* RESPONSIVE */
-  @media(max-width: 768px) {
-    th:nth-child(n+6) { display: none; }
-    td:nth-child(n+6) { display: none; }
-  }
-  @media(max-width: 480px) {
-    th:nth-child(n+5) { display: none; }
-    td:nth-child(n+5) { display: none; }
-  }
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .hide-mobile { display: none !important; }
+  .main { padding: 12px; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">📈 StockLens</div>
-  <span class="api-badge" id="api-status-badge" onclick="openApiModal()">🔑 API設定</span>
-</header>
-
-<main>
-  <!-- API SETUP BANNER -->
-  <div id="setup-banner">
-    <div>
-      <h3>🚀 FMP APIキーを設定してリアルデータを取得</h3>
-      <p>Financial Modeling Prep の無料APIキーを入力してください</p>
-    </div>
-    <div class="setup-input-row">
-      <input type="password" id="api-key-inline" placeholder="APIキーをここにペースト...">
-      <button class="btn btn-primary" onclick="saveApiKey()">接続</button>
-    </div>
+<div class="header">
+  <div class="logo">StockLens <span>株式ファンダメンタル分析</span></div>
+  <div class="header-right">
+    <div class="market-badge active" id="badge-us">🇺🇸 US</div>
+    <div class="market-badge" id="badge-jp">🇯🇵 JP</div>
+    <div class="market-badge" id="last-update"></div>
   </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('screener')">📊 スクリーナー</div>
-    <div class="tab" onclick="switchTab('watchlist')">⭐ ウォッチリスト</div>
-  </div>
-
-  <!-- SCREENER TAB -->
-  <div id="tab-screener" class="tab-content active">
-    <div class="controls">
-      <input class="search-box" type="text" id="search-input" placeholder="🔍 ティッカー・企業名で検索" oninput="filterAndRender()">
-      <select id="market-select" onchange="loadScreener()">
-        <option value="nasdaq100">NASDAQ 100</option>
-        <option value="sp500">S&P 500</option>
-        <option value="dow">ダウ30</option>
-      </select>
-      <select id="sort-metric" onchange="filterAndRender()">
-        <option value="score">総合スコア順</option>
-        <option value="per">PER（低い順）</option>
-        <option value="fcfYield">FCF利回り（高い順）</option>
-        <option value="pegRatio">PEG（低い順）</option>
-        <option value="roic">ROIC（高い順）</option>
-        <option value="epsGrowth">EPS成長率（高い順）</option>
-      </select>
-      <button class="btn btn-primary btn-sm" onclick="loadScreener()">🔄 更新</button>
-    </div>
-
-    <div id="screener-container">
-      <div class="empty-state">
-        <div class="icon">🔑</div>
-        <p>APIキーを設定するとリアルタイムデータが表示されます</p>
-        <p style="font-size:12px;color:var(--text3);margin-top:8px">デモモードでは<strong>サンプルデータ</strong>を表示中</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- WATCHLIST TAB -->
-  <div id="tab-watchlist" class="tab-content">
-    <div id="watchlist-container">
-      <div class="empty-state">
-        <div class="icon">⭐</div>
-        <p>株式詳細ページから☆をクリックして追加できます</p>
-      </div>
-    </div>
-  </div>
-</main>
-
-<!-- DETAIL VIEW (full-page overlay) -->
-<div id="detail-view">
-  <main>
-    <div class="back-btn" onclick="closeDetail()">← 一覧に戻る</div>
-    <div class="stock-header">
-      <div class="stock-logo" id="detail-logo">A</div>
-      <div class="stock-title">
-        <h1 id="detail-name">—</h1>
-        <p id="detail-sector">—</p>
-      </div>
-      <div class="stock-price">
-        <div class="price" id="detail-price">—</div>
-        <div class="change" id="detail-change">—</div>
-      </div>
-    </div>
-
-    <div class="metric-grid" id="detail-metrics"></div>
-
-    <div class="chart-row">
-      <div class="chart-box">
-        <div class="section-title">EPS推移（過去5年）</div>
-        <canvas id="eps-chart" height="160"></canvas>
-      </div>
-      <div class="chart-box">
-        <div class="section-title">FCF推移（過去5年）</div>
-        <canvas id="fcf-chart" height="160"></canvas>
-      </div>
-    </div>
-
-    <div class="section-title">分析スコアカード</div>
-    <div class="analysis-grid" id="detail-scorecard"></div>
-  </main>
 </div>
 
-<!-- API KEY MODAL -->
-<div class="modal-overlay" id="api-modal">
-  <div class="modal">
-    <h3>🔑 FMP APIキー設定</h3>
-    <p>Financial Modeling Prep のAPIキーを入力してください。<br>
-    無料プランは <a href="https://financialmodelingprep.com" target="_blank" style="color:var(--accent)">financialmodelingprep.com</a> で取得できます。</p>
-    <input type="password" id="modal-api-key" placeholder="your_api_key_here">
-    <div class="modal-buttons">
-      <button class="btn btn-ghost" onclick="closeApiModal()">キャンセル</button>
-      <button class="btn btn-primary" onclick="saveApiKeyFromModal()">保存して接続</button>
+<div class="main">
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><div class="stat-label">銘柄数</div><div class="stat-value" id="stat-total">—</div></div>
+    <div class="stat-card"><div class="stat-label">平均スコア</div><div class="stat-value" id="stat-avg-score">—</div></div>
+    <div class="stat-card"><div class="stat-label">高スコア銘柄(70+)</div><div class="stat-value green" id="stat-high">—</div></div>
+    <div class="stat-card"><div class="stat-label">平均PER</div><div class="stat-value" id="stat-per">—</div></div>
+  </div>
+
+  <div class="controls">
+    <input class="search-box" id="search" type="text" placeholder="🔍 ティッカー・銘柄名で検索...">
+    <select id="sector-filter">
+      <option value="">全セクター</option>
+    </select>
+    <select id="sort-by">
+      <option value="score">スコア順</option>
+      <option value="market_cap">時価総額順</option>
+      <option value="per">PER順</option>
+      <option value="peg">PEG順</option>
+      <option value="roe">ROE順</option>
+      <option value="fcf_yield">FCF利回り順</option>
+      <option value="price">株価順</option>
+    </select>
+    <select id="sort-dir">
+      <option value="desc">高い順</option>
+      <option value="asc">低い順</option>
+    </select>
+    <select id="market-filter">
+      <option value="">全市場</option>
+      <option value="US">🇺🇸 米国株</option>
+      <option value="JP">🇯🇵 日本株</option>
+    </select>
+    <button class="btn btn-primary" onclick="loadStocks()">更新</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header-bar">
+      <div class="table-title">📊 銘柄ランキング</div>
+      <div class="table-count" id="result-count"></div>
     </div>
+    <div id="table-area">
+      <div class="loading"><div class="spinner"></div><br>データ読み込み中...</div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" onclick="closeDetailBtn()">✕</button>
+    <div class="detail-ticker" id="d-ticker"></div>
+    <div class="detail-name" id="d-name"></div>
+    <div class="detail-sector" id="d-tags"></div>
+    <div class="detail-price" id="d-price"></div>
+    <div class="detail-grid" id="d-grid"></div>
   </div>
 </div>
 
 <script>
-// ============================================================
-// STATE
-// ============================================================
-let API_KEY = localStorage.getItem('fmp_api_key') || '';
-let allStocks = [];
-let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+const API = 'https://stock-analyzer-production-564c.up.railway.app';
 let currentPage = 1;
-const PAGE_SIZE = 25;
-let sortCol = 'score';
-let sortAsc = false;
-let detailTicker = null;
+let totalPages = 1;
+let allSectors = new Set();
+let statsCache = null;
 
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  if (API_KEY) {
-    updateApiStatus(true);
-    hideBanner();
+function scoreColor(s) {
+  if (s >= 75) return '#3fb950';
+  if (s >= 60) return '#58a6ff';
+  if (s >= 45) return '#d29922';
+  return '#f85149';
+}
+
+function fmt(v, decimals=2, suffix='') {
+  if (v == null || v === undefined) return '<span class="na">—</span>';
+  const n = Number(v);
+  if (isNaN(n)) return '<span class="na">—</span>';
+  return n.toFixed(decimals) + suffix;
+}
+
+function fmtPct(v) {
+  if (v == null) return '<span class="na">—</span>';
+  const n = Number(v);
+  if (isNaN(n)) return '<span class="na">—</span>';
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}${(n*100).toFixed(2)}%</span>`;
+}
+
+function fmtMktCap(v) {
+  if (!v) return '<span class="na">—</span>';
+  const t = v / 1e12;
+  if (t >= 1) return `$${t.toFixed(2)}T`;
+  const b = v / 1e9;
+  return `$${b.toFixed(1)}B`;
+}
+
+function fmtPctDirect(v) {
+  if (v == null) return '<span class="na">—</span>';
+  const n = Number(v);
+  if (isNaN(n)) return '<span class="na">—</span>';
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
+}
+
+async function loadStocks() {
+  const search = document.getElementById('search').value;
+  const sector = document.getElementById('sector-filter').value;
+  const sortBy = document.getElementById('sort-by').value;
+  const sortDir = document.getElementById('sort-dir').value;
+  const market = document.getElementById('market-filter').value;
+
+  document.getElementById('table-area').innerHTML = '<div class="loading"><div class="spinner"></div><br>データ読み込み中...</div>';
+
+  try {
+    let url = `${API}/api/v1/screener?page=${currentPage}&per_page=25&sort_by=${sortBy}&sort_dir=${sortDir}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (sector) url += `&sector=${encodeURIComponent(sector)}`;
+    if (market) url += `&market=${encodeURIComponent(market)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.stocks) throw new Error('データ取得失敗');
+
+    totalPages = Math.ceil(data.total / 25);
+    document.getElementById('result-count').textContent = `${data.total}銘柄`;
+
+    // Collect sectors
+    data.stocks.forEach(s => { if (s.sector) allSectors.add(s.sector); });
+    updateSectorFilter();
+
+    // Stats (first load)
+    if (!statsCache && data.stocks.length > 0) {
+      loadStats(data.stocks, data.total);
+    }
+
+    renderTable(data.stocks, (currentPage - 1) * 25);
+    renderPagination(data.total);
+
+  } catch(e) {
+    document.getElementById('table-area').innerHTML = `<div class="error-msg">⚠️ エラー: ${e.message}<br><small>バックエンド: ${API}</small></div>`;
   }
-  loadScreener();
-});
-
-// ============================================================
-// API KEY
-// ============================================================
-function saveApiKey() {
-  const key = document.getElementById('api-key-inline').value.trim();
-  if (!key) return;
-  API_KEY = key;
-  localStorage.setItem('fmp_api_key', key);
-  updateApiStatus(true);
-  hideBanner();
-  loadScreener();
-}
-function saveApiKeyFromModal() {
-  const key = document.getElementById('modal-api-key').value.trim();
-  if (!key) return;
-  API_KEY = key;
-  localStorage.setItem('fmp_api_key', key);
-  updateApiStatus(true);
-  hideBanner();
-  closeApiModal();
-  loadScreener();
-}
-function updateApiStatus(connected) {
-  const badge = document.getElementById('api-status-badge');
-  badge.textContent = connected ? '✅ API接続済み' : '🔑 API設定';
-  badge.className = 'api-badge' + (connected ? ' connected' : '');
-}
-function hideBanner() {
-  document.getElementById('setup-banner').style.display = 'none';
-}
-function openApiModal() {
-  document.getElementById('api-modal').classList.add('open');
-}
-function closeApiModal() {
-  document.getElementById('api-modal').classList.remove('open');
 }
 
-// ============================================================
-// SCREENER DATA
-// ============================================================
-async function loadScreener() {
-  const market = document.getElementById('market-select').value;
-  showLoading('screener-container');
+function loadStats(stocks, total) {
+  document.getElementById('stat-total').textContent = total;
 
-  if (!API_KEY) {
-    allStocks = getDemoData();
-    filterAndRender();
+  // Load all for stats
+  fetch(`${API}/api/v1/screener?per_page=200&sort_by=score&sort_dir=desc`)
+    .then(r => r.json())
+    .then(data => {
+      const all = data.stocks;
+      const scores = all.map(s => s.score).filter(s => s != null);
+      const pers = all.map(s => s.per).filter(p => p != null && p > 0 && p < 200);
+      const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0)/arr.length) : null;
+      const high = scores.filter(s => s >= 70).length;
+
+      document.getElementById('stat-total').textContent = data.total || total;
+      document.getElementById('stat-avg-score').textContent = avg(scores) ? avg(scores).toFixed(1) : '—';
+      document.getElementById('stat-high').textContent = high;
+      document.getElementById('stat-per').textContent = avg(pers) ? avg(pers).toFixed(1) : '—';
+      statsCache = true;
+    }).catch(() => {});
+
+  document.getElementById('last-update').textContent = '更新: ' + new Date().toLocaleTimeString('ja-JP');
+}
+
+function renderTable(stocks, offset) {
+  if (!stocks.length) {
+    document.getElementById('table-area').innerHTML = '<div class="loading" style="color:var(--text2)">該当銘柄なし</div>';
     return;
   }
 
-  try {
-    // Get index constituents
-    let indexMap = { nasdaq100: 'NASDAQ', sp500: 'S&P 500', dow: 'DJIA' };
-    const profilesUrl = `https://financialmodelingprep.com/api/v3/financial-statement-symbol-lists?apikey=${API_KEY}`;
+  const rows = stocks.map((s, i) => {
+    const rank = offset + i + 1;
+    const sc = s.score || 50;
+    const mktTag = s.market === 'JP'
+      ? '<span class="market-tag market-jp">JP</span>'
+      : '<span class="market-tag market-us">US</span>';
+    const chg = s.change_pct != null
+      ? `<span class="${s.change_pct >= 0 ? 'pos' : 'neg'}">${s.change_pct >= 0 ? '+' : ''}${s.change_pct.toFixed(2)}%</span>`
+      : '<span class="na">—</span>';
 
-    // Use stock screener endpoint
-    const screenerUrl = `https://financialmodelingprep.com/api/v3/stock-screener?marketCapMoreThan=1000000000&limit=100&exchange=${market === 'nasdaq100' ? 'NASDAQ' : 'NYSE'}&apikey=${API_KEY}`;
-    const resp = await fetch(screenerUrl);
-    const data = await resp.json();
+    return `<tr onclick="showDetail('${s.ticker}')" style="cursor:pointer">
+      <td class="rank-cell">${rank}</td>
+      <td>${mktTag}</td>
+      <td class="ticker-cell">${s.ticker}</td>
+      <td class="name-cell">${s.name || '—'}</td>
+      <td><span class="sector-badge">${s.sector || '—'}</span></td>
+      <td class="price-cell">${s.market === 'JP' ? '¥' : '$'}${s.price != null ? Number(s.price).toLocaleString() : '—'}</td>
+      <td>${chg}</td>
+      <td>${fmtMktCap(s.market_cap)}</td>
+      <td>
+        <div class="score-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:${sc}%;background:${scoreColor(sc)}"></div></div>
+          <span class="score-num" style="color:${scoreColor(sc)}">${sc}</span>
+        </div>
+      </td>
+      <td class="hide-mobile">${s.per != null ? s.per.toFixed(1) : '<span class="na">—</span>'}</td>
+      <td class="hide-mobile">${s.peg != null ? s.peg.toFixed(2) : '<span class="na">—</span>'}</td>
+      <td class="hide-mobile">${s.roe != null ? `<span class="${s.roe > 0.15 ? 'pos' : s.roe < 0 ? 'neg' : ''}">${(s.roe*100).toFixed(1)}%</span>` : '<span class="na">—</span>'}</td>
+      <td class="hide-mobile">${s.fcf_yield != null ? `<span class="${s.fcf_yield > 3 ? 'pos' : ''}">${s.fcf_yield.toFixed(1)}%</span>` : '<span class="na">—</span>'}</td>
+      <td class="hide-mobile">${s.div_yield != null ? `$y(s.div_yield*100).toFixed(2)}%` : '<span class="na">—</span>'}</td>
+    </tr>`;
+  }).join('');
 
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('No data');
-    }
-
-    // Get fundamental data for each stock (batch)
-    const tickers = data.slice(0, 50).map(s => s.symbol).join(',');
-    const [ratios, profiles, keyMetrics] = await Promise.all([
-      fetch(`https://financialmodelingprep.com/api/v3/ratios-ttm/${tickers.split(',')[0]}?apikey=${API_KEY}`).then(r => r.json()),
-      fetch(`https://financialmodelingprep.com/api/v3/profile/${tickers}?apikey=${API_KEY}`).then(r => r.json()),
-      fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${tickers.split(',')[0]}?apikey=${API_KEY}`).then(r => r.json()),
-    ]);
-
-    // Build from profile data (bulk)
-    allStocks = Array.isArray(profiles) ? profiles.slice(0, 50).map(p => buildStockFromProfile(p)) : getDemoData();
-    filterAndRender();
-  } catch (e) {
-    console.error(e);
-    allStocks = getDemoData();
-    filterAndRender();
-  }
+  document.getElementById('table-area').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th>
+        <th>市場</th>
+        <th onclick="sortBy('ticker')">ティッカー</th>
+        <th>銘柄名</th>
+        <th>セクター</th>
+        <th onclick="sortBy('price')">株価</th>
+        <th>前日比</th>
+        <th onclick="sortBy('market_cap')">時価総額</th>
+        <th onclick="sortBy('score')" class="sorted">スコア</th>
+        <th onclick="sortBy('per')" class="hide-mobile">PER</th>
+        <th onclick="sortBy('peg')" class="hide-mobile">PEG</th>
+        <th onclick="sortBy('roe')" class="hide-mobile">ROE</th>
+        <th onclick="sortBy('fcf_yield')" class="hide-mobile">FCF利回り</th>
+        <th class="hide-mobile">配当利回り</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
 }
 
-function buildStockFromProfile(p) {
-  const per = p.pe || 0;
-  const eps = p.eps || 0;
-  const price = p.price || 0;
-  const mktCap = p.mktCap || 0;
-  // Estimate score from available data
-  const perScore = per > 0 && per < 15 ? 90 : per < 25 ? 70 : per < 40 ? 50 : 30;
-  const score = Math.round((perScore + 60) / 2);
-  return {
-    ticker: p.symbol,
-    name: p.companyName,
-    sector: p.sector || '—',
-    price,
-    change: p.changes || 0,
-    changePct: p.changesPercentage || 0,
-    mktCap,
-    per: per || null,
-    eps,
-    fcfYield: null,
-    pegRatio: null,
-    roic: null,
-    epsGrowth: null,
-    divYield: p.lastDiv ? ((p.lastDiv / price) * 100) : null,
-    score,
-  };
-}
-
-// ============================================================
-// DEMO DATA
-// ============================================================
-function getDemoData() {
-  return [
-    { ticker:'AAPL', name:'Apple Inc.', sector:'Technology', price:189.5, change:1.2, changePct:0.64, mktCap:2950e9, per:28.4, eps:6.43, fcfYield:4.2, pegRatio:2.1, roic:54.2, epsGrowth:12.3, divYield:0.5, score:82 },
-    { ticker:'MSFT', name:'Microsoft Corp.', sector:'Technology', price:415.2, change:3.1, changePct:0.75, mktCap:3080e9, per:34.2, eps:11.45, fcfYield:3.1, pegRatio:2.3, roic:38.5, epsGrowth:14.8, divYield:0.7, score:85 },
-    { ticker:'GOOGL', name:'Alphabet Inc.', sector:'Technology', price:172.3, change:-0.8, changePct:-0.46, mktCap:2140e9, per:22.1, eps:7.65, fcfYield:5.3, pegRatio:1.4, roic:29.1, epsGrowth:15.9, divYield:0.4, score:88 },
-    { ticker:'NVDA', name:'NVIDIA Corp.', sector:'Technology', price:875.4, change:12.3, changePct:1.43, mktCap:2160e9, per:62.1, eps:13.0, fcfYield:2.1, pegRatio:1.2, roic:89.3, epsGrowth:51.7, divYield:0.03, score:79 },
-    { ticker:'META', name:'Meta Platforms', sector:'Technology', price:505.3, change:5.4, changePct:1.08, mktCap:1280e9, per:26.8, eps:18.0, fcfYield:4.8, pegRatio:1.0, roic:35.2, epsGrowth:26.5, divYield:0.4, score:91 },
-    { ticker:'AMZN', name:'Amazon.com Inc.', sector:'Consumer', price:190.2, change:2.1, changePct:1.12, mktCap:1980e9, per:43.5, eps:4.26, fcfYield:3.2, pegRatio:1.5, roic:22.1, epsGrowth:28.7, divYield:0, score:78 },
-    { ticker:'BRK.B', name:'Berkshire Hathaway', sector:'Financials', price:405.1, change:0.5, changePct:0.12, mktCap:885e9, per:21.3, eps:16.8, fcfYield:6.1, pegRatio:3.5, roic:12.4, epsGrowth:6.2, divYield:0, score:72 },
-    { ticker:'JPM', name:'JPMorgan Chase', sector:'Financials', price:202.5, change:-1.2, changePct:-0.59, mktCap:578e9, per:11.8, eps:16.23, fcfYield:null, pegRatio:1.9, roic:16.3, epsGrowth:6.3, divYield:2.2, score:76 },
-    { ticker:'JNJ', name:'Johnson & Johnson', sector:'Healthcare', price:152.3, change:0.3, changePct:0.20, mktCap:367e9, per:15.2, eps:9.98, fcfYield:5.4, pegRatio:2.8, roic:21.3, epsGrowth:5.4, divYield:3.1, score:74 },
-    { ticker:'V', name:'Visa Inc.', sector:'Financials', price:275.4, change:1.8, changePct:0.66, mktCap:560e9, per:28.5, eps:9.54, fcfYield:3.9, pegRatio:2.0, roic:44.1, epsGrowth:14.3, divYield:0.8, score:84 },
-    { ticker:'WMT', name:'Walmart Inc.', sector:'Consumer', price:68.2, change:0.4, changePct:0.59, mktCap:548e9, per:29.1, eps:2.34, fcfYield:2.8, pegRatio:2.9, roic:14.2, epsGrowth:10.1, divYield:1.2, score:69 },
-    { ticker:'UNH', name:'UnitedHealth Group', sector:'Healthcare', price:510.2, change:-3.1, changePct:-0.60, mktCap:473e9, per:19.8, eps:24.2, fcfYield:4.1, pegRatio:1.7, roic:18.9, epsGrowth:11.7, divYield:1.5, score:78 },
-    { ticker:'XOM', name:'Exxon Mobil', sector:'Energy', price:112.3, change:0.7, changePct:0.63, mktCap:448e9, per:13.1, eps:8.61, fcfYield:7.2, pegRatio:2.1, roic:17.4, epsGrowth:6.2, divYield:3.4, score:73 },
-    { ticker:'MA', name:'Mastercard Inc.', sector:'Financials', price:471.5, change:2.3, changePct:0.49, mktCap:434e9, per:36.2, eps:13.01, fcfYield:3.1, pegRatio:2.1, roic:188.4, epsGrowth:17.2, divYield:0.6, score:83 },
-    { ticker:'HD', name:'Home Depot', sector:'Consumer', price:385.2, change:-1.4, changePct:-0.36, mktCap:380e9, per:22.8, eps:15.14, fcfYield:4.5, pegRatio:2.7, roic:null, epsGrowth:8.5, divYield:2.3, score:71 },
-    { ticker:'COST', name:'Costco Wholesale', sector:'Consumer', price:890.3, change:4.2, changePct:0.47, mktCap:394e9, per:51.2, eps:16.5, fcfYield:1.9, pegRatio:2.9, roic:28.3, epsGrowth:17.6, divYield:0.5, score:74 },
-    { ticker:'AVGO', name:'Broadcom Inc.', sector:'Technology', price:1580.2, change:18.3, changePct:1.17, mktCap:736e9, per:34.8, eps:42.8, fcfYield:4.2, pegRatio:0.9, roic:18.5, epsGrowth:38.5, divYield:1.4, score:87 },
-    { ticker:'TSLA', name:'Tesla Inc.', sector:'Consumer', price:175.3, change:-2.8, changePct:-1.57, mktCap:558e9, per:54.2, eps:3.53, fcfYield:1.3, pegRatio:3.8, roic:14.2, epsGrowth:14.2, divYield:0, score:58 },
-    { ticker:'LLY', name:'Eli Lilly', sector:'Healthcare', price:850.4, change:8.1, changePct:0.96, mktCap:803e9, per:98.3, eps:8.17, fcfYield:1.2, pegRatio:2.0, roic:50.2, epsGrowth:48.9, divYield:0.6, score:77 },
-    { ticker:'ORCL', name:'Oracle Corp.', sector:'Technology', price:125.4, change:0.8, changePct:0.64, mktCap:340e9, per:28.6, eps:4.38, fcfYield:4.8, pegRatio:1.9, roic:null, epsGrowth:15.1, divYield:1.4, score:76 },
-  ];
-}
-
-// ============================================================
-// RENDER TABLE
-// ============================================================
-function filterAndRender() {
-  const query = document.getElementById('search-input').value.toLowerCase();
-  const metric = document.getElementById('sort-metric').value;
-
-  let filtered = allStocks.filter(s =>
-    s.ticker.toLowerCase().includes(query) || s.name.toLowerCase().includes(query)
-  );
-
-  // Sort
-  const dir = ['per','pegRatio'].includes(metric) ? 1 : -1;
-  filtered.sort((a, b) => {
-    const av = a[metric] ?? (dir === -1 ? -Infinity : Infinity);
-    const bv = b[metric] ?? (dir === -1 ? -Infinity : Infinity);
-    return (av - bv) * dir;
-  });
-
+function sortBy(col) {
+  document.getElementById('sort-by').value = col;
   currentPage = 1;
-  renderTable(filtered);
-}
-
-function renderTable(stocks) {
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const page = stocks.slice(start, start + PAGE_SIZE);
-
-  const html = `
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>ティッカー / 企業名</th>
-            <th>株価</th>
-            <th>時価総額</th>
-            <th>スコア</th>
-            <th>PER</th>
-            <th>EPS成長</th>
-            <th>FCF利回り</th>
-            <th>PEG</th>
-            <th>ROIC</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${page.map((s, i) => `
-            <tr onclick="openDetail('${s.ticker}')">
-              <td class="neu">${start + i + 1}</td>
-              <td>
-                <div class="ticker">${s.ticker}</div>
-                <div style="font-size:11px;color:var(--text2);margin-top:1px">${truncate(s.name, 22)}</div>
-              </td>
-              <td>
-                <div>$${fmt(s.price)}</div>
-                <div class="${s.changePct >= 0 ? 'pos' : 'neg'}" style="font-size:11px">${s.changePct >= 0 ? '+' : ''}${fmt(s.changePct)}%</div>
-              </td>
-              <td>${fmtCap(s.mktCap)}</td>
-              <td><span class="score-badge ${scoreClass(s.score)}">${s.score}</span></td>
-              <td class="${perColor(s.per)}">${s.per != null ? s.per.toFixed(1) : '—'}</td>
-              <td class="${s.epsGrowth > 0 ? 'pos' : 'neg'}">${s.epsGrowth != null ? s.epsGrowth.toFixed(1) + '%' : '—'}</td>
-              <td class="${s.fcfYield > 4 ? 'pos' : s.fcfYield > 2 ? 'neu' : 'neg'}">${s.fcfYield != null ? s.fcfYield.toFixed(1) + '%' : '—'}</td>
-              <td class="${s.pegRatio != null && s.pegRatio < 1 ? 'pos' : s.pegRatio < 2 ? 'neu' : 'neg'}">${s.pegRatio != null ? s.pegRatio.toFixed(2) : '—'}</td>
-              <td class="${s.roic > 20 ? 'pos' : s.roic > 10 ? 'neu' : 'neg'}">${s.roic != null ? s.roic.toFixed(1) + '%' : '—'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-    ${renderPagination(stocks.length)}
-  `;
-  document.getElementById('screener-container').innerHTML = html;
+  loadStocks();
 }
 
 function renderPagination(total) {
-  const pages = Math.ceil(total / PAGE_SIZE);
-  if (pages <= 1) return '';
-  let btns = '';
-  for (let i = 1; i <= pages; i++) {
-    btns += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i},event)">${i}</button>`;
-  }
-  return `<div class="pagination">${btns}</div>`;
+  const pages = Math.ceil(total / 25);
+  totalPages = pages;
+  if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
+
+  const range = [];
+  for (let p = Math.max(1, currentPage-2); p <= Math.min(pages, currentPage+2); p++) range.push(p);
+  if (range[0] > 1) { html += `<button class="page-btn" onclick="goPage(1)">1</button>`; if (range[0] > 2) html += `<span style="color:var(--text2);padding:0 4px">…</span>`; }
+  range.forEach(p => {
+    html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  });
+  if (range[range.length-1] < pages) { if (range[range.length-1] < pages-1) html += `<span style="color:var(--text2);padding:0 4px">…</span>`; html += `<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`; }
+
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>▶</button>`;
+  html += `<span style="color:var(--text2);font-size:12px;margin-left:8px">${currentPage}/${pages}ページ</span>`;
+  document.getElementById('pagination').innerHTML = html;
 }
 
-function goPage(p, e) {
-  e.stopPropagation();
+function goPage(p) {
+  if (p < 1 || p > totalPages) return;
   currentPage = p;
-  filterAndRender();
+  loadStocks();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ============================================================
-// STOCK DETAIL
-// ============================================================
-async function openDetail(ticker) {
-  const stock = allStocks.find(s => s.ticker === ticker);
-  if (!stock) return;
-  detailTicker = ticker;
-
-  document.querySelector('main').style.display = 'none';
-  const detail = document.getElementById('detail-view');
-  detail.style.display = 'block';
-
-  // Header
-  document.getElementById('detail-logo').textContent = ticker[0];
-  document.getElementById('detail-name').textContent = stock.name;
-  document.getElementById('detail-sector').textContent = `${stock.sector} · ${ticker}`;
-  document.getElementById('detail-price').textContent = `$${fmt(stock.price)}`;
-  const chEl = document.getElementById('detail-change');
-  chEl.textContent = `${stock.changePct >= 0 ? '+' : ''}${fmt(stock.changePct)}% 本日`;
-  chEl.className = 'change ' + (stock.changePct >= 0 ? 'pos' : 'neg');
-
-  // Metrics
-  const metrics = [
-    { label: 'スコア', value: `${stock.score}/100`, sub: scoreLabel(stock.score), highlight: true },
-    { label: 'PER', value: stock.per != null ? stock.per.toFixed(1) : '—', sub: perLabel(stock.per) },
-    { label: 'EPS', value: stock.eps != null ? `$${fmt(stock.eps)}` : '—', sub: '1株利益（TTM）' },
-    { label: 'EPS成長率', value: stock.epsGrowth != null ? `${stock.epsGrowth.toFixed(1)}%` : '—', sub: '過去5年CAGR' },
-    { label: 'FCF利回り', value: stock.fcfYield != null ? `${stock.fcfYield.toFixed(1)}%` : '—', sub: 'FCF÷時価総額' },
-    { label: 'PEG Ratio', value: stock.pegRatio != null ? stock.pegRatio.toFixed(2) : '—', sub: 'PER÷EPS成長率' },
-    { label: 'ROIC', value: stock.roic != null ? `${stock.roic.toFixed(1)}%` : '—', sub: '投下資本利益率' },
-    { label: '配当利回り', value: stock.divYield != null ? `${stock.divYield.toFixed(2)}%` : '—', sub: '年間配当÷株価' },
-    { label: '時価総額', value: fmtCap(stock.mktCap), sub: '' },
-  ];
-
-  document.getElementById('detail-metrics').innerHTML = metrics.map(m => `
-    <div class="metric-card ${m.highlight ? 'highlight' : ''}">
-      <div class="label">${m.label}</div>
-      <div class="value">${m.value}</div>
-      <div class="sub">${m.sub}</div>
-    </div>
-  `).join('');
-
-  // Charts (simulated data)
-  drawBarChart('eps-chart', generateTrend(stock.eps, stock.epsGrowth, 5), ['2020','2021','2022','2023','2024'], '#3b82f6');
-  drawBarChart('fcf-chart', generateFcfTrend(stock.fcfYield, stock.mktCap, 5), ['2020','2021','2022','2023','2024'], '#06b6d4', true);
-
-  // Scorecard
-  renderScorecard(stock);
-
-  // If API key present, fetch real data
-  if (API_KEY) {
-    fetchDetailData(ticker, stock);
-  }
-
-  window.scrollTo({ top: 0 });
+function updateSectorFilter() {
+  const sel = document.getElementById('sector-filter');
+  const cur = sel.value;
+  const sorted = [...allSectors].sort();
+  sel.innerHTML = '<option value="">全セクター</option>' + sorted.map(s => `<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('');
 }
 
-async function fetchDetailData(ticker, stock) {
+async function showDetail(ticker) {
+  document.getElementById('d-ticker').textContent = ticker;
+  document.getElementById('d-name').textContent = '読み込み中...';
+  document.getElementById('d-price').textContent = '';
+  document.getElementById('d-tags').innerHTML = '';
+  document.getElementById('d-grid').innerHTML = '';
+  document.getElementById('detail-overlay').classList.add('open');
+
   try {
-    const [ratios, income, cashflow, profile] = await Promise.all([
-      fetch(`https://financialmodelingprep.com/api/v3/ratios-ttm/${ticker}?apikey=${API_KEY}`).then(r => r.json()),
-      fetch(`https://financialmodelingprep.com/api/v3/income-statement/${ticker}?limit=5&apikey=${API_KEY}`).then(r => r.json()),
-      fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${ticker}?limit=5&apikey=${API_KEY}`).then(r => r.json()),
-      fetch(`https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${API_KEY}`).then(r => r.json()),
-    ]);
+    const res = await fetch(`${API}/api/v1/stocks/${ticker}`);
+    const s = await res.json();
 
-    // Update EPS chart with real data
-    if (Array.isArray(income) && income.length) {
-      const eps = income.map(y => parseFloat((y.eps || 0).toFixed(2))).reverse();
-      const labels = income.map(y => y.calendarYear || y.date?.substring(0,4)).reverse();
-      drawBarChart('eps-chart', eps, labels, '#3b82f6');
-    }
+    document.getElementById('d-name').textContent = s.name || '';
+    document.getElementById('d-price').innerHTML =
+      `${s.market === 'JP' ? '¥' : '$'}${s.price != null ? Number(s.price).toLocaleString() : '—'}`
+      + (s.change_pct != null ? ` <span style="font-size:16px;color:${s.change_pct>=0?'var(--green)':'var(--red)'}">${s.change_pct>=0?'+':''}${s.change_pct.toFixed(2)}%</span>` : '');
 
-    // Update FCF chart with real data
-    if (Array.isArray(cashflow) && cashflow.length) {
-      const fcf = cashflow.map(y => +(((y.freeCashFlow || 0) / 1e9).toFixed(2))).reverse();
-      const labels = cashflow.map(y => y.calendarYear || y.date?.substring(0,4)).reverse();
-      drawBarChart('fcf-chart', fcf, labels, '#06b6d4', true);
-    }
+    document.getElementById('d-tags').innerHTML = [
+      s.sector && `<span class="detail-tag">📂 ${s.sector}</span>`,
+      s.industry && `<span class="detail-tag">${s.industry}</span>`,
+      s.exchange && `<span class="detail-tag">${s.exchange}</span>`,
+      s.market && `<span class="detail-tag">${s.market === 'JP' ? '🇯🇵 日本株' : '🇺🇸 米国株'}</span>`,
+    ].filter(Boolean).join('');
 
-    // Update metrics from ratios
-    if (Array.isArray(ratios) && ratios[0]) {
-      const r = ratios[0];
-      const updatedStock = { ...stock };
-      if (r.priceEarningsRatioTTM) updatedStock.per = r.priceEarningsRatioTTM;
-      if (r.freeCashFlowYieldTTM) updatedStock.fcfYield = r.freeCashFlowYieldTTM * 100;
-      if (r.priceEarningsToGrowthRatioTTM) updatedStock.pegRatio = r.priceEarningsToGrowthRatioTTM;
-      if (r.returnOnInvestedCapitalTTM) updatedStock.roic = r.returnOnInvestedCapitalTTM * 100;
-      if (r.dividendYieldPercentageTTM) updatedStock.divYield = r.dividendYieldPercentageTTM;
-      // Update score
-      updatedStock.score = calcScore(updatedStock);
-      // Re-render metrics
-      Object.assign(stock, updatedStock);
-      openDetail(ticker);
-    }
-  } catch(e) { console.error('Detail fetch error:', e); }
-}
+    const metrics = [
+      ['スコア', s.score != null ? `<span style="color:${scoreColor(s.score)};font-size:24px">${s.score}</span>` : '—'],
+      ['時価総額', s.market_cap != null ? (s.market_cap >= 1e12 ? `$${(s.market_cap/1e12).toFixed(2)}T` : `$${(s.market_cap/1e9).toFixed(1)}B`) : '—'],
+      ['PER', s.per != null ? s.per.toFixed(2) : '—'],
+      ['PBR', s.pbr != null ? s.pbr.toFixed(2) : '—'],
+      ['PSR', s.psr != null ? s.psr.toFixed(2) : '—'],
+      ['EV/EBITDA', s.ev_ebitda != null ? s.ev_ebitda.toFixed(2) : '—'],
+      ['PEG', s.peg != null ? s.peg.toFixed(2) : '—'],
+      ['ROE', s.roe != null ? `${(s.roe*100).toFixed(2)}%` : '—'],
+      ['ROA', s.roa != null ? `${(s.roa*100).toFixed(2)}%` : '—'],
+      ['粗利益率', s.gross_margin != null ? `${(s.gross_margin*100).toFixed(2)}%` : '—'],
+      ['営業利益率', s.operating_margin != null ? `${(s.operating_margin*100).toFixed(2)}%` : '—'],
+      ['純利益率', s.net_margin != null ? `${(s.net_margin*100).toFixed(2)}%` : '—'],
+      ['FCF利回り', s.fcf_yield != null ? `${s.fcf_yield.toFixed(2)}%` : '—'],
+      ['配当利回り', s.div_yield != null ? `${(s.div_yield*100).toFixed(2)}%` : '—'],
+      ['D/E比率', s.de_ratio != null ? s.de_ratio.toFixed(2) : '—'],
+      ['流動比率', s.current_ratio != null ? s.current_ratio.toFixed(2) : '—'],
+      ['EPS', s.eps != null ? `$${s.eps.toFixed(2)}` : '—'],
+      ['Beta', s.beta != null ? s.beta.toFixed(2) : '—'],
+      ['Alpha', s.alpha != null ? `${s.alpha.toFixed(2)}%` : '—'],
+      ['Sharpe', s.sharpe != null ? s.sharpe.toFixed(2) : '—'],
+    ];
 
-function closeDetail() {
-  document.getElementById('detail-view').style.display = 'none';
-  document.querySelector('main').style.display = 'block';
-}
+    document.getElementById('d-grid').innerHTML = metrics.map(([label, val]) => `
+      <div class="detail-metric">
+        <div class="detail-metric-label">${label}</div>
+        <div class="detail-metric-value">${val}</div>
+      </div>`).join('');
 
-// ============================================================
-// SCORECARD
-// ============================================================
-function renderScorecard(s) {
-  const sections = [
-    {
-      title: '📊 バリュエーション',
-      items: [
-        { label: 'PER', val: s.per, max: 50, inv: true, good: 15, ok: 25 },
-        { label: 'PEG Ratio', val: s.pegRatio, max: 5, inv: true, good: 1, ok: 2 },
-        { label: 'FCF利回り', val: s.fcfYield, max: 10, inv: false, good: 5, ok: 3 },
-      ]
-    },
-    {
-      title: '📈 成長性',
-      items: [
-        { label: 'EPS成長率', val: s.epsGrowth, max: 60, inv: false, good: 15, ok: 8 },
-        { label: 'ROIC', val: s.roic, max: 60, inv: false, good: 20, ok: 10 },
-      ]
-    },
-    {
-      title: '💰 株主還元',
-      items: [
-        { label: '配当利回り', val: s.divYield, max: 6, inv: false, good: 2, ok: 1 },
-      ]
-    },
-  ];
-
-  document.getElementById('detail-scorecard').innerHTML = sections.map(sec => `
-    <div class="analysis-card">
-      <h4>${sec.title}</h4>
-      ${sec.items.map(item => {
-        if (item.val == null) return `<div class="progress-row"><span>${item.label}</span><span class="neu">—</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--text3)"></div></div>`;
-        const pct = Math.min(100, Math.abs(item.val) / item.max * 100);
-        const isGood = item.inv ? item.val <= item.good : item.val >= item.good;
-        const isOk = item.inv ? item.val <= item.ok : item.val >= item.ok;
-        const color = isGood ? 'var(--green)' : isOk ? 'var(--yellow)' : 'var(--red)';
-        return `
-          <div class="progress-row">
-            <span>${item.label}</span>
-            <span style="color:${color};font-weight:600">${typeof item.val === 'number' ? item.val.toFixed(item.val < 10 ? 2 : 1) + (item.label.includes('率') || item.label.includes('利回り') || item.label === 'ROIC' ? '%' : '') : item.val}</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `).join('');
-}
-
-// ============================================================
-// CHARTS (vanilla canvas)
-// ============================================================
-function drawBarChart(canvasId, data, labels, color, isMillions = false) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const W = canvas.offsetWidth || 300;
-  const H = 160;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  ctx.scale(dpr, dpr);
-
-  const pad = { top: 20, right: 10, bottom: 30, left: 50 };
-  const chartW = W - pad.left - pad.right;
-  const chartH = H - pad.top - pad.bottom;
-
-  const max = Math.max(...data, 0);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-
-  const barW = (chartW / data.length) * 0.6;
-  const gap = (chartW / data.length) * 0.4;
-
-  // Background
-  ctx.fillStyle = 'transparent';
-
-  // Grid lines
-  ctx.strokeStyle = '#1e2d45';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (chartH / 4) * i;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y); ctx.stroke();
-    const val = max - (range / 4) * i;
-    ctx.fillStyle = '#64748b';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(val.toFixed(1), pad.left - 4, y + 4);
+  } catch(e) {
+    document.getElementById('d-name').textContent = 'エラー: ' + e.message;
   }
-
-  // Bars
-  data.forEach((v, i) => {
-    const x = pad.left + (chartW / data.length) * i + gap / 2;
-    const zeroY = pad.top + ((max / range) * chartH);
-    const barH = (Math.abs(v) / range) * chartH;
-    const y = v >= 0 ? zeroY - barH : zeroY;
-
-    // Gradient
-    const grad = ctx.createLinearGradient(0, y, 0, y + barH);
-    grad.addColorStop(0, color);
-    grad.addColorStop(1, color + '55');
-    ctx.fillStyle = v >= 0 ? grad : '#ef444488';
-    ctx.beginPath();
-    ctx.roundRect(x, y, barW, barH, 3);
-    ctx.fill();
-
-    // Label
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(labels[i], x + barW / 2, H - 6);
-  });
 }
 
-function generateTrend(currentVal, growthRate, years) {
-  if (!currentVal || !growthRate) return Array(years).fill(0).map((_, i) => +(i * 0.5).toFixed(2));
-  const g = (growthRate / 100);
-  const arr = [];
-  for (let i = years - 1; i >= 0; i--) {
-    arr.push(+(currentVal / Math.pow(1 + g, i)).toFixed(2));
-  }
-  return arr;
+function closeDetail(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeDetailBtn();
+}
+function closeDetailBtn() {
+  document.getElementById('detail-overlay').classList.remove('open');
 }
 
-function generateFcfTrend(fcfYield, mktCap, years) {
-  if (!fcfYield || !mktCap) return Array(years).fill(0).map((_, i) => +(h * 0.2).toFixed(2));
-  const fcf = (fcfYield / 100) * mktCap;
-  return Array(years).fill(0).map((_, i) => +((fcf / 1e9) * (0.7 + i * 0.08)).toFixed(2));
-}
+// Search on enter / debounce
+let searchTimer;
+document.getElementById('search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { currentPage = 1; loadStocks(); }, 400);
+});
+document.getElementById('sector-filter').addEventListener('change', () => { currentPage = 1; loadStocks(); });
+document.getElementById('sort-by').addEventListener('change', () => { currentPage = 1; loadStocks(); });
+document.getElementById('sort-dir').addEventListener('change', () => { currentPage = 1; loadStocks(); });
+document.getElementById('market-filter').addEventListener('change', () => { currentPage = 1; loadStocks(); });
 
-// ============================================================
-// SCORE CALC
-// ============================================================
-function calcScore(s) {
-  let score = 50;
-  if (s.per != null) {
-    if (s.per < 15) score += 15;
-    else if (s.per < 25) score += 8;
-    else if (s.per > 50) score -= 10;
-  }
-  if (s.pegRatio != null) {
-    if (s.pegRatio < 1) score += 15;
-    else if (s.pegRatio < 2) score += 8;
-    else if (s.pegRatio > 3) score -= 8;
-  }
-  if (s.fcfYield != null) {
-    if (s.fcfYield > 5) score += 10;
-    else if (s.fcfYield > 3) score += 5;
-    else if (s.fcfYield < 1) score -= 5;
-  }
-  if (s.roic != null) {
-    if (s.roic > 25) score += 10;
-    else if (s.roic > 15) score += 5;
-    else if (s.roic < 8) score -= 5;
-  }
-  if (s.epsGrowth != null) {
-    if (s.epsGrowth > 20) score += 10;
-    else if (s.epsGrowth > 10) score += 5;
-    else if (s.epsGrowth < 0) score -= 10;
-  }
-  return Math.max(0, Math.min(100, Math.round(score)));
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function fmt(n) { return n != null ? n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'; }
-function fmtCap(n) {
-  if (!n) return '—';
-  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(0)}B`;
-  return `$${(n / 1e6).toFixed(0)}M`;
-}
-function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
-function scoreClass(s) { return s >= 85 ? 'score-a' : s >= 70 ? 'score-b' : s >= 55 ? 'score-c' : 'score-d'; }
-function scoreLabel(s) { return s >= 85 ? '非常に割安' : s >= 70 ? '割安' : s >= 55 ? '中立' : '割高'; }
-function perLabel(p) { if (!p) return '—'; return p < 15 ? '割安' : p < 25 ? '適正' : p < 40 ? 'やや高い' : '高い'; }
-function perColor(p) { if (!p) return 'neu'; return p < 15 ? 'pos' : p < 25 ? 'neu' : 'neg'; }
-
-function showLoading(id) {
-  document.getElementById(id).innerHTML = '<div class="loading"><div class="spinner"></div><p>データを取得中...</p></div>';
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['screener','watchlist'][i] === tab));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'watchlist') renderWatchlist();
-}
-
-function renderWatchlist() {
-  const stocks = allStocks.filter(s => watchlist.includes(s.ticker));
-  if (!stocks.length) {
-    document.getElementById('watchlist-container').innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>まだウォッチリストに銘柄がありません</p></div>';
-    return;
-  }
-  const saved = [...allStocks];
-  allStocks = stocks;
-  const tmpId = 'watchlist-container';
-  const html = document.getElementById('screener-container').innerHTML;
-  document.getElementById('watchlist-container').innerHTML = document.getElementById('screener-container').innerHTML;
-  allStocks = saved;
-}
+// Initial load
+loadStocks();
 </script>
 </body>
 </html>
