@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import screener, stocks, capm
+from app.api.routes import screener, stocks, capm, scraper
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
 import app.models.stock  # noqa: F401
@@ -72,6 +72,7 @@ app.add_middleware(
 app.include_router(screener.router, prefix="/api/v1", tags=["Screener"])
 app.include_router(stocks.router, prefix="/api/v1", tags=["Stocks"])
 app.include_router(capm.router, prefix="/api/v1", tags=["CAPM"])
+app.include_router(scraper.router, prefix="/api/v1", tags=["Scraper"])
 
 
 @app.get("/")

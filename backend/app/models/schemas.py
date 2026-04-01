@@ -202,3 +202,127 @@ class SearchResult(BaseModel):
     name: Optional[str] = None
     sector: Optional[str] = None
     market: str = "US"
+
+
+# --- Scraper (TradingView) ---
+class EarningsData(BaseModel):
+    eps_ttm: Optional[float] = None
+    eps_diluted_ttm: Optional[float] = None
+    eps_forecast_next_fq: Optional[float] = None
+    eps_growth_yoy: Optional[float] = None
+    eps_growth_quarterly_yoy: Optional[float] = None
+    next_earnings_date: Optional[float] = None
+    last_earnings_date: Optional[float] = None
+
+
+class IncomeData(BaseModel):
+    revenue_ttm: Optional[float] = None
+    revenue_per_share_ttm: Optional[float] = None
+    gross_profit_ttm: Optional[float] = None
+    operating_income_ttm: Optional[float] = None
+    net_income_ttm: Optional[float] = None
+    ebitda_ttm: Optional[float] = None
+    revenue_growth_yoy: Optional[float] = None
+    revenue_growth_quarterly_yoy: Optional[float] = None
+
+
+class ValuationScraped(BaseModel):
+    per: Optional[float] = None
+    pbr: Optional[float] = None
+    psr: Optional[float] = None
+    ev_ebitda: Optional[float] = None
+    peg: Optional[float] = None
+
+
+class ProfitabilityScraped(BaseModel):
+    roe: Optional[float] = None
+    roa: Optional[float] = None
+    roic: Optional[float] = None
+    gross_margin: Optional[float] = None
+    operating_margin: Optional[float] = None
+    net_margin: Optional[float] = None
+
+
+class CashFlowScraped(BaseModel):
+    fcf_ttm: Optional[float] = None
+    operating_cf_ttm: Optional[float] = None
+    capex_ttm: Optional[float] = None
+
+
+class FinancialHealthScraped(BaseModel):
+    de_ratio: Optional[float] = None
+    current_ratio: Optional[float] = None
+    quick_ratio: Optional[float] = None
+
+
+class DividendData(BaseModel):
+    yield_: Optional[float] = None
+
+    model_config = {"populate_by_name": True}
+
+
+class AnalystData(BaseModel):
+    num_analysts: Optional[float] = None
+    target_price_avg: Optional[float] = None
+    recommendation: Optional[float] = None
+
+
+class EarningsStockItem(BaseModel):
+    symbol: str
+    name: Optional[str] = None
+    sector: Optional[str] = None
+    market: str = "US"
+    price: Optional[float] = None
+    change_pct: Optional[float] = None
+    market_cap: Optional[float] = None
+    earnings: EarningsData = EarningsData()
+    income: IncomeData = IncomeData()
+    valuation: ValuationScraped = ValuationScraped()
+    profitability: ProfitabilityScraped = ProfitabilityScraped()
+    cash_flow: CashFlowScraped = CashFlowScraped()
+    financial_health: FinancialHealthScraped = FinancialHealthScraped()
+    dividends: Optional[dict] = None
+    analyst: AnalystData = AnalystData()
+
+
+class EarningsOverviewResponse(BaseModel):
+    total: int
+    market: str
+    stocks: list[EarningsStockItem]
+
+
+class FinancialStatementsScrapedResponse(BaseModel):
+    ticker: str
+    market: str = "US"
+    period: str = "annual"
+    income_statement: list[dict] = []
+    balance_sheet: list[dict] = []
+    cash_flow: list[dict] = []
+
+
+class EarningsCalendarEntry(BaseModel):
+    symbol: str
+    name: Optional[str] = None
+    sector: Optional[str] = None
+    market: str = "US"
+    price: Optional[float] = None
+    market_cap: Optional[float] = None
+    next_earnings_date: Optional[float] = None
+    eps_ttm: Optional[float] = None
+    eps_forecast: Optional[float] = None
+    num_analysts: Optional[float] = None
+    target_price: Optional[float] = None
+    recommendation: Optional[float] = None
+
+
+class EarningsCalendarResponse(BaseModel):
+    total: int
+    market: str
+    entries: list[EarningsCalendarEntry]
+
+
+class ScraperScreenerResponse(BaseModel):
+    total: int
+    market: str
+    sort_by: str
+    stocks: list[EarningsStockItem]
