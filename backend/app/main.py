@@ -1,54 +1,55 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+
 from app.api.routes import screener, stocks, capm
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
-# Import all models so Base knows about them before create_all
 import app.models.stock  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
-# Shared log buffer for /admin/seed streaming
-_seed_logs: list[str] = []
 _seed_running = False
+_seed_result: dict = {}
 
 
-async def _seed_if_empty():
-    """Run initial data fetch if DB is empty (background task, non-blocking)."""
-    global _seed_running
+async def _run_seed(force: bool = False):
+    """Run seed. If force=False, skip when DB already has data."""
+    global _seed_running, _seed_result
     from app.models.stock import Stock
     db = SessionLocal()
     try:
         count = db.query(Stock).count()
-        if count == 0:
-            logger.info("DB empty — seeding initial stock data in background...")
-            _seed_running = True
-            try:
-                from scripts.fetch_initial_data import fetch_and_save
-                await fetch_and_save()
-                logger.info("Initial stock data seeded successfully.")
-            except Exception as e:
-                logger.error(f"Seed error: {e}")
-            finally:
-                _seed_running = False
-        else:
+        if not force and count > 0:
             logger.info(f"DB has {count} stocks, skipping seed.")
+            return
     except Exception as e:
-        logger.warning(f"Seed check error (non-fatal): {e}")
+        logger.warning(f"Seed check error: {e}")
     finally:
         db.close()
+
+    _seed_running = True
+    _seed_result = {}
+    try:
+        logger.info("Starting DB seed via yfinance...")
+        from scripts.fetch_initial_data import fetch_and_save
+        result = await fetch_and_save()
+        _seed_result = result
+        logger.info(f"Seed complete: {result}")
+    except Exception as e:
+        logger.error(f"Seed error: {e}")
+        _seed_result = {"error": str(e)}
+    finally:
+        _seed_running = False
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create all DB tables on startup
     Base.metadata.create_all(bind=engine)
-    # Kick off background seed (won't block request handling)
-    asyncio.create_task(_seed_if_empty())
+    asyncio.create_task(_run_seed(force=False))
     yield
 
 
@@ -88,32 +89,19 @@ async def health():
         stock_count = -1
     finally:
         db.close()
-    return {"status": "ok", "stocks_in_db": stock_count, "seed_running": _seed_running}
+    return {
+        "status": "ok",
+        "stocks_in_db": stock_count,
+        "seed_running": _seed_running,
+        "seed_result": _seed_result,
+    }
 
 
 @app.post("/admin/seed")
-async def admin_seed(background: bool = False):
-    """Manually trigger DB seeding. Returns streamed log output."""
+async def admin_seed(force: bool = True):
+    """Trigger DB seeding as a background task. Poll /health for progress."""
     global _seed_running
     if _seed_running:
         return {"status": "already_running"}
-
-    log_list: list[str] = []
-    _seed_running = True
-
-    async def run_and_stream():
-        global _seed_running
-        try:
-            from scripts.fetch_initial_data import fetch_and_save
-            result = await fetch_and_save(log_list=log_list)
-            yield f"DONE: {result}\n"
-        except Exception as e:
-            yield f"ERROR: {e}\n"
-        finally:
-            _seed_running = False
-
-    if background:
-        asyncio.create_task(_seed_if_empty())
-        return {"status": "started_in_background"}
-
-    return StreamingResponse(run_and_stream(), media_type="text/plain")
+    asyncio.create_task(_run_seed(force=force))
+    return {"status": "started", "message": "Seeding in background. Poll /health for stocks_in_db count."}
