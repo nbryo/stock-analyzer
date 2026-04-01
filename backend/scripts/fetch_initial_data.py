@@ -7,7 +7,6 @@ Run from the backend/ directory with venv activated.
 import asyncio
 import sys
 import os
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -73,7 +72,16 @@ def calc_score(m: dict) -> int:
     return max(0, min(100, round(score)))
 
 
-async def fetch_and_save():
+async def fetch_and_save(log_list=None):
+    """Fetch FMP data for top 100 US stocks and save to DB.
+    
+    log_list: optional list to append log messages to (for API endpoint monitoring)
+    """
+    def log(msg):
+        print(msg, flush=True)
+        if log_list is not None:
+            log_list.append(msg)
+
     Base.metadata.create_all(bind=engine)
     db: Session = SessionLocal()
 
@@ -83,30 +91,31 @@ async def fetch_and_save():
         errors = []
 
         for i, ticker in enumerate(TOP_100_TICKERS):
-            print(f"[{i+1}/{total}] {ticker}...", end=" ", flush=True)
+            line = f"[{i+1}/{total}] {ticker}..."
+            log(line)
 
             # Skip if already in DB with metrics
             existing = db.query(StockMetrics).filter(StockMetrics.ticker == ticker).first()
             if existing and existing.price:
-                print("SKIP (already in DB)")
+                log(f"  SKIP (already in DB)")
                 success += 1
                 continue
 
             try:
                 profile = await fmp_service.get_company_profile(ticker)
-                time.sleep(1.0)
+                await asyncio.sleep(0.3)
 
                 ratios = await fmp_service.get_ratios_ttm(ticker)
-                time.sleep(1.0)
+                await asyncio.sleep(0.3)
 
                 income_stmts = await fmp_service.get_income_statements(ticker, limit=5)
-                time.sleep(1.0)
+                await asyncio.sleep(0.3)
 
                 cf_stmts = await fmp_service.get_cash_flow_statements(ticker, limit=5)
-                time.sleep(1.0)
+                await asyncio.sleep(0.3)
 
                 if not profile:
-                    print("SKIP (no profile)")
+                    log(f"  SKIP (no profile)")
                     errors.append(ticker)
                     continue
 
@@ -165,12 +174,12 @@ async def fetch_and_save():
                     if not year:
                         continue
                     year = int(year)
-                    existing = (
+                    existing_stmt = (
                         db.query(IncomeStatement)
                         .filter(IncomeStatement.ticker == ticker, IncomeStatement.fiscal_year == year)
                         .first()
                     )
-                    if not existing:
+                    if not existing_stmt:
                         db.add(IncomeStatement(
                             ticker=ticker, fiscal_year=year, period="annual",
                             revenue=stmt.get("revenue"), gross_profit=stmt.get("grossProfit"),
@@ -185,12 +194,12 @@ async def fetch_and_save():
                     if not year:
                         continue
                     year = int(year)
-                    existing = (
+                    existing_stmt = (
                         db.query(CashFlowStatement)
                         .filter(CashFlowStatement.ticker == ticker, CashFlowStatement.fiscal_year == year)
                         .first()
                     )
-                    if not existing:
+                    if not existing_stmt:
                         db.add(CashFlowStatement(
                             ticker=ticker, fiscal_year=year,
                             operating_cash_flow=stmt.get("operatingCashFlow"),
@@ -201,22 +210,24 @@ async def fetch_and_save():
                         ))
 
                 success += 1
-                print("OK")
+                log(f"  OK")
 
             except Exception as e:
-                print(f"ERROR: {e}")
+                log(f"  ERROR: {e}")
                 errors.append(ticker)
 
             if (i + 1) % 10 == 0:
                 db.commit()
-                print(f"  --- Committed {i+1}/{total} ---")
+                log(f"--- Committed {i+1}/{total} ---")
 
         db.commit()
-        print(f"\nDone! {success}/{total} stocks saved. Errors: {errors or 'none'}")
+        msg = f"Done! {success}/{total} stocks saved. Errors: {errors or 'none'}"
+        log(msg)
+        return {"success": success, "total": total, "errors": errors}
 
     except Exception as e:
         db.rollback()
-        print(f"FATAL ERROR: {e}")
+        log(f"FATAL ERROR: {e}")
         raise
     finally:
         db.close()
